@@ -20,15 +20,15 @@
 // **********************************************************************************
 
 #include <SPI.h>
-#include <DAC7565.h>
+#include "DAC7565.h"
 
 // DAC connection, If you do not have all these connected 
 // (or hardwired), just set unconnected values to -1
 // On dac shield board https://github.com/hallard/DAC-Shield
 // we have Enable=D7, Sync=D4, LDAC=D8 but we use soft SPI
-// (D11 MOSI used by PWM so Data=D12, Clock=D13
+// (D11 MOSI used by PWM so Data=D11, Clock=D13
 // Instantiate DAC with correct wiring
-DAC dac(7, 4, 8, 12, 13);
+DAC dac(7, 4, 8, 11, 13);
 
 int16_t pos, neg ;  //stores 0 to MAX_SCALE
 
@@ -53,44 +53,84 @@ void setup()
   Serial.flush();
 
   // We start at mid scale (VREF/2)
-  pos = DAC_MAX_SCALE/2;
+  pos = 0;//DAC_MAX_SCALE/2;
   neg = DAC_MAX_SCALE/2;
 }
 
 void loop() 
 {
-  // Loop from 1.25V to 2.25V then back to 1.25V
-  if (++pos>=DAC_MAX_SCALE)
-    pos = DAC_MAX_SCALE/2;
+  pos++;
 
-  // Every 100 points we show information
+  delay(1);
+  
+  // Serial.println("0 V");
+  dac.writeChannel(DAC_CHANNEL_A, pos);
+  // delay(3000);
+  // Serial.println("0.25 V");
+  // dac.writeChannel(DAC_CHANNEL_A, 1600); // 0.25
+  // delay(3000);
+  // Serial.println("0.5 V");
+  // dac.writeChannel(DAC_CHANNEL_A, 3200); // 0.5
+  // delay(3000);
+  // Serial.println("1.25 V");
+  // dac.writeChannel(DAC_CHANNEL_A, 8200); // 1.25
+  // delay(3000);
+  // Serial.println("2.5 V");
+  // dac.writeChannel(DAC_CHANNEL_A, 16000); // 2.5
+  // delay(3000);
+
+
+  if (pos>=DAC_MAX_SCALE)
+    pos = 0;
+
   if ( pos % 100 == 0)
   {
-    Serial.print(F("Channel A & C DAC to "));
+    Serial.print(F("Channel A DAC to "));
     Serial.print(pos);
     Serial.print(F(" => "));
     Serial.print(2.5 * pos / DAC_MAX_SCALE);
-    Serial.print(F(" V\t"));
-  }
-
-  dac.writeChannel(DAC_CHANNEL_A, pos);
-  dac.writeChannel(DAC_CHANNEL_C, pos);
-
-  // Loop from 1.25V to 0V then back to 1.25V
-  if (--neg<0)
-    neg = DAC_MAX_SCALE/2;
-
-  // Every 100 points we show information
-  if ( neg % 100 == 0)
-  {
-    Serial.print(F("Channel B & D DAC to "));
-    Serial.print(neg);
-    Serial.print(F(" => "));
-    Serial.print(2.5 * neg / DAC_MAX_SCALE);
     Serial.println(F(" V"));
+    Serial.println();
   }
 
-  dac.writeChannel(DAC_CHANNEL_B, neg);
-  dac.writeChannel(DAC_CHANNEL_D, neg);
+
+  // add a 5000 msecs of delay
+  // delay(2);
+
+  // // Loop from 1.25V to 2.25V then back to 1.25V
+  // pos += 1;
+  // if (pos>=DAC_MAX_SCALE)
+  //   pos = DAC_MAX_SCALE/2;
+
+  // // Every 100 points we show information
+  // if ( pos % 100 == 0)
+  // {
+  //   Serial.print(F("Channel A & C DAC to "));
+  //   Serial.print(pos);
+  //   Serial.print(F(" => "));
+  //   Serial.print(2.5 * pos / DAC_MAX_SCALE);
+  //   Serial.print(F(" V\t"));
+  // }
+
+  // dac.writeChannel(DAC_CHANNEL_A, pos);
+  // dac.writeChannel(DAC_CHANNEL_C, pos);
+
+  // // Loop from 1.25V to 0V then back to 1.25V
+  // if (neg<0)
+  //   neg = DAC_MAX_SCALE/2;
+
+  // // Every 100 points we show information
+  // neg -= 1;
+  // if ( neg % 100 == 0)
+  // {
+  //   Serial.print(F("Channel B & D DAC to "));
+  //   Serial.print(neg);
+  //   Serial.print(F(" => "));
+  //   Serial.print(2.5 * neg / DAC_MAX_SCALE);
+  //   Serial.println(F(" V"));
+  // }
+
+  // dac.writeChannel(DAC_CHANNEL_B, neg);
+  // dac.writeChannel(DAC_CHANNEL_D, neg);
 }
 

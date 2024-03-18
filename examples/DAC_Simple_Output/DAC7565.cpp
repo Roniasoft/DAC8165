@@ -1,3 +1,4 @@
+#include "Arduino.h"
 // **********************************************************************************
 // Driver definition for TI DAC7565, DAC7564, DAC8164 and DAC8564 Library
 // **********************************************************************************
@@ -18,7 +19,7 @@
 // All text above must be included in any redistribution.
 //
 // **********************************************************************************
-#include <DAC7565.h>
+#include "DAC7565.h"
 #include <SPI.h>
 
 // Class Constructor
@@ -92,6 +93,7 @@ Comments:
 ====================================================================== */
 void DAC::write(uint32_t data)
 { 
+  // Serial.println("Writing new data!");
   uint8_t datahigh, datamid, datalow;
 
   if (_enable_pin != -1)
@@ -120,6 +122,9 @@ void DAC::write(uint32_t data)
   // Hardware SPI ?
   if (_hw_spi)
   {
+    Serial.print(datahigh, HEX);
+    Serial.print(datamid, HEX);
+    Serial.println(datalow, HEX);
     SPI.transfer(datahigh);
     SPI.transfer(datamid);
     SPI.transfer(datalow);
@@ -190,8 +195,8 @@ void DAC::writeChannel(uint8_t channel, uint16_t value)
     // avoid writing bad data
     return;
 
-  // value is 12 MSB bits (last LSB nibble to 0)
-  data |= value << 4;
+  // value is 14 MSB bits (last LSB nibble to 0)
+  data |= value << 2;
 
   // Send to chip
   write (data);
